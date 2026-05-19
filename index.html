@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moushi's Smart Health Pro</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --pink: #ff758c; --pink-d: #e8566a; --pink-l: #fff0f3;
+  --blue: #4facfe; --blue-d: #1976d2;
+  --green: #43e97b; --green-d: #2e7d32;
+  --orange: #fa8231; --purple: #a55eea;
+  --bg: #fdf2f4; --card: #ffffff; --text: #2d2d2d; --sub: #888;
+  --border: #f0d6db; --shadow: 0 6px 24px rgba(255,117,140,0.15);
+}
+body.dark {
+  --bg: #181820; --card: #23232f; --text: #f0f0f0; --sub: #aaa;
+  --border: #33334a; --shadow: 0 6px 24px rgba(0,0,0,0.4);
+  --pink-l: #2a1a20;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: var(--text); transition: background .3s, color .3s; }
+
+/* ── SPLASH ── */
+#splash {
+  position: fixed; inset: 0; z-index: 999;
+  background: linear-gradient(145deg, #ff758c 0%, #ff9eb5 50%, #ffb3c6 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: white; text-align: center; transition: opacity .7s;
+}
+.splash-heart { font-size: 64px; animation: beat 1s ease-in-out infinite; }
+@keyframes beat { 0%,100%{transform:scale(1);} 50%{transform:scale(1.25);} }
+.splash-title { font-size: 28px; font-weight: 700; margin: 12px 0 6px; }
+.splash-sub { font-size: 15px; opacity: .85; }
+.splash-dots { display:flex; gap:8px; margin-top:30px; }
+.splash-dots span { width:10px;height:10px;border-radius:50%;background:white;opacity:.4;animation:dot 1.2s ease-in-out infinite; }
+.splash-dots span:nth-child(2){animation-delay:.2s;}
+.splash-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dot{0%,100%{opacity:.4;transform:scale(1);}50%{opacity:1;transform:scale(1.3);}}
+
+/* ── APP ── */
+#app { display: none; padding-bottom: 72px; }
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(120deg, var(--pink), var(--pink-d));
+  color: white; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 4px 16px rgba(255,117,140,.35);
+}
+.header-left { display: flex; flex-direction: column; }
+.header-salam { font-size: 11px; opacity: .8; letter-spacing: .5px; }
+.header-name { font-size: 19px; font-weight: 700; }
+.header-avatar { font-size: 38px; cursor: pointer; }
+
+/* ── QUOTE ── */
+.quote-bar {
+  background: var(--pink-l); color: var(--pink-d);
+  padding: 9px 16px; font-size: 12px; font-style: italic;
+  text-align: center; border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+
+/* ── TABS ── */
+.page { display: none; padding: 14px; }
+.page.active { display: block; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--card); display: flex;
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0,0,0,.08); z-index: 100;
+}
+.nav-item {
+  flex: 1; background: none; border: none; padding: 10px 4px 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; color: var(--sub); font-size: 10px; font-family: inherit;
+  transition: color .2s;
+}
+.nav-item.active { color: var(--pink-d); }
+.nav-icon { font-size: 21px; }
+.nav-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--pink);
+  display: none; margin-top: 2px;
+}
+.nav-item.active .nav-dot { display: block; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card); border-radius: 18px;
+  box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden;
+}
+.card-head {
+  padding: 14px 18px 0; display: flex; align-items: center; gap: 8px;
+}
+.card-head h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+.card-body { padding: 12px 18px 18px; }
+
+/* ── INPUTS ── */
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.input-wrap label { display: block; font-size: 11px; color: var(--sub); margin-bottom: 4px; }
+input[type=number], select {
+  width: 100%; padding: 11px 13px; border-radius: 11px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  color: var(--text); font-family: inherit; font-size: 14px;
+  transition: border-color .2s;
+}
+input[type=number]:focus, select:focus { outline: none; border-color: var(--pink); }
+.btn {
+  width: 100%; padding: 13px; border-radius: 12px; border: none;
+  background: linear-gradient(120deg, var(--pink), var(--pink-d));
+  color: white; font-family: inherit; font-size: 15px; font-weight: 700;
+  cursor: pointer; margin-top: 10px; transition: opacity .2s, transform .1s;
+  box-shadow: 0 4px 14px rgba(255,117,140,.4);
+}
+.btn:active { opacity: .85; transform: scale(.98); }
+.btn-blue { background: linear-gradient(120deg, var(--blue), var(--blue-d)); box-shadow: 0 4px 14px rgba(79,172,254,.35); }
+.btn-green { background: linear-gradient(120deg, var(--green), var(--green-d)); box-shadow: 0 4px 14px rgba(67,233,123,.35); }
+.btn-purple { background: linear-gradient(120deg, #a55eea, #7c3aed); box-shadow: 0 4px 14px rgba(165,94,234,.35); }
+.btn-sm { width: auto; padding: 9px 18px; font-size: 13px; margin-top: 0; }
+.btn-outline { background: none; box-shadow: none; border: 2px solid var(--pink); color: var(--pink); }
+
+/* ── BMI RESULT ── */
+.res-box { display: none; margin-top: 14px; }
+.bmi-score-ring {
+  display: flex; flex-direction: column; align-items: center; margin: 10px 0 14px;
+}
+.bmi-score-num { font-size: 52px; font-weight: 700; line-height: 1; }
+.bmi-cat-label { font-size: 16px; font-weight: 600; margin-top: 4px; }
+.bmi-bar-wrap {
+  height: 14px; border-radius: 10px; position: relative; margin: 8px 0 4px;
+  background: linear-gradient(to right, #4facfe 0%, #43e97b 30%, #fa8231 65%, #f44336 100%);
+}
+.bmi-needle {
+  position: absolute; top: -5px; width: 24px; height: 24px;
+  border-radius: 50%; background: white; border: 3px solid #333;
+  transform: translateX(-50%); transition: left .6s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.bmi-bar-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--sub); }
+.ideal-range { text-align: center; font-size: 12px; color: var(--sub); margin: 8px 0 12px; }
+.calorie-pill {
+  background: var(--pink-l); border-radius: 30px; padding: 10px 16px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; font-size: 14px; font-weight: 600; color: var(--pink-d);
+  margin-bottom: 14px;
+}
+.age-note {
+  border-radius: 12px; padding: 11px 14px; font-size: 13px; font-weight: 500;
+  margin-bottom: 12px; border-left: 5px solid;
+  line-height: 1.5;
+}
+.advice-cards { display: flex; flex-direction: column; gap: 10px; }
+.adv-card {
+  border-radius: 12px; padding: 12px 14px; font-size: 13px;
+  border-left: 4px solid; line-height: 1.6;
+}
+.adv-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+
+/* ── SUMMARY ── */
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sum-item {
+  background: var(--bg); border-radius: 14px; padding: 14px 10px;
+  text-align: center; border: 1px solid var(--border);
+}
+.sum-val { font-size: 22px; font-weight: 700; color: var(--pink-d); }
+.sum-lbl { font-size: 11px; color: var(--sub); margin-top: 3px; }
+
+/* ── WATER ── */
+.glasses-grid {
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px;
+  margin: 12px 0;
+}
+.glass-icon { font-size: 22px; opacity: .25; transition: opacity .3s, transform .2s; text-align: center; }
+.glass-icon.full { opacity: 1; transform: scale(1.1); }
+.counter-row { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 10px 0; }
+.cnt-btn {
+  width: 46px; height: 46px; border-radius: 50%; border: none; font-size: 24px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; transition: transform .15s;
+}
+.cnt-btn:active { transform: scale(.9); }
+.cnt-minus { background: #ffd6db; color: #c62828; }
+.cnt-plus { background: #bbdefb; color: #1565c0; }
+.cnt-val { font-size: 36px; font-weight: 700; color: var(--blue-d); min-width: 70px; text-align: center; }
+.streak-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(120deg, #ff9800, #ff5722);
+  color: white; border-radius: 20px; padding: 6px 14px;
+  font-size: 13px; font-weight: 600;
+}
+.progress-bar-wrap { height: 8px; background: var(--border); border-radius: 8px; margin: 8px 0; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--blue), var(--pink)); transition: width .4s; }
+
+/* ── SLEEP ── */
+.sleep-display { text-align: center; margin: 10px 0; }
+.sleep-num { font-size: 42px; font-weight: 700; color: var(--purple); }
+.sleep-label { font-size: 13px; color: var(--sub); margin-top: 2px; }
+input[type=range] {
+  width: 100%; accent-color: var(--purple); height: 6px; cursor: pointer;
+  margin: 12px 0 4px;
+}
+.sleep-marks { display: flex; justify-content: space-between; font-size: 10px; color: var(--sub); }
+
+/* ── MOOD ── */
+.mood-row { display: flex; justify-content: space-around; margin: 10px 0; }
+.mood-btn {
+  font-size: 32px; background: none; border: 3px solid transparent;
+  border-radius: 50%; padding: 6px; cursor: pointer; transition: all .2s;
+  line-height: 1;
+}
+.mood-btn:hover { transform: scale(1.15); }
+.mood-btn.sel { border-color: var(--pink); background: var(--pink-l); transform: scale(1.2); }
+.mood-msg { text-align: center; font-size: 13px; color: var(--sub); min-height: 20px; margin-top: 6px; }
+
+/* ── HISTORY ── */
+.hist-entry-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 12px; }
+.hist-list { max-height: 220px; overflow-y: auto; border-radius: 10px; border: 1px solid var(--border); }
+.hist-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.hist-row:last-child { border-bottom: none; }
+.trend-up { color: #f44336; font-weight: 700; }
+.trend-down { color: #43a047; font-weight: 700; }
+.empty-msg { text-align: center; color: var(--sub); font-size: 13px; padding: 16px; }
+
+/* ── PROFILE ── */
+.avatar-center { text-align: center; margin: 10px 0; }
+.big-avatar { font-size: 70px; cursor: pointer; transition: transform .2s; }
+.big-avatar:hover { transform: scale(1.1); }
+.avatar-picker { display: none; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 12px 0; }
+.av-opt {
+  font-size: 36px; padding: 6px; border-radius: 12px;
+  border: 3px solid transparent; cursor: pointer; transition: .2s;
+}
+.av-opt:hover { border-color: var(--pink); background: var(--pink-l); }
+.setting-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 13px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+}
+.setting-row:last-child { border-bottom: none; }
+.toggle { position: relative; width: 50px; height: 26px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.t-slider {
+  position: absolute; inset: 0; background: #ccc; border-radius: 26px;
+  cursor: pointer; transition: .3s;
+}
+.t-slider:before {
+  content: ''; position: absolute; width: 20px; height: 20px;
+  left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s;
+}
+input:checked + .t-slider { background: var(--pink); }
+input:checked + .t-slider:before { transform: translateX(24px); }
+.goal-input { width: 65px; text-align: center; padding: 8px; }
+
+/* ── FOOTER ── */
+.footer-copy {
+  text-align: center; color: var(--sub); font-size: 11px;
+  padding: 12px 0 4px; letter-spacing: .5px;
+}
+
+/* ── DARK OVERRIDES ── */
+body.dark input[type=number], body.dark select { background: #2a2a38; border-color: #444; }
+body.dark .sum-item, body.dark .adv-card { background: #2a2a38; }
+body.dark .hist-list { border-color: #444; }
+body.dark .hist-row { border-color: #444; }
+body.dark .quote-bar { background: #2a1a20; border-color: #3a2030; }
+body.dark .progress-bar-wrap { background: #3a3a50; }
+</style>
+</head>
+<body onload="initApp()">
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-heart">❤️</div>
+  <div class="splash-title">হ্যালো মৌশি!</div>
+  <div class="splash-sub">তোমার সুস্থ থাকার সাথী<br><b>স্মার্ট হেলথ প্রো</b></div>
+  <div class="splash-dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <span class="header-salam">আস্সালামু আলাইকুম</span>
+      <span class="header-name" id="hdr-name">মৌশি 🌸</span>
+    </div>
+    <span class="header-avatar" id="hdr-avatar" onclick="switchTab('profile')">👧</span>
+  </div>
+
+  <!-- QUOTE -->
+  <div class="quote-bar" id="daily-quote"></div>
+
+  <!-- ══════════ PAGE: DASHBOARD ══════════ -->
+  <div class="page active" id="page-dashboard">
+
+    <!-- BMI Card -->
+    <div class="card">
+      <div class="card-head"><span style="font-size:20px">🩺</span><h3>স্বাস্থ্য পরীক্ষা</h3></div>
+      <div class="card-body">
+        <div class="input-grid">
+          <div class="input-wrap">
+            <label>ওজন (কেজি)</label>
+            <input type="number" id="inp-w" placeholder="৩০">
+          </div>
+          <div class="input-wrap">
+            <label>উচ্চতা (ইঞ্চি)</label>
+            <input type="number" id="inp-h" placeholder="৬০" step="0.5">
+          </div>
+        </div>
+        <div class="input-grid">
+          <div class="input-wrap">
+            <label>বয়স (বছর)</label>
+            <input type="number" id="inp-age" placeholder="১৫">
+          </div>
+          <div class="input-wrap">
+            <label>পরিশ্রমের মাত্রা</label>
+            <select id="inp-act">
+              <option value="1.2">কম (বসে কাজ)</option>
+              <option value="1.375">হালকা</option>
+              <option value="1.55" selected>মাঝারি</option>
+              <option value="1.725">বেশি</option>
+              <option value="1.9">অনেক বেশি</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" onclick="calculate()">📊 ফলাফল দেখো</button>
+
+        <div class="res-box" id="res-box">
+          <div class="bmi-score-ring">
+            <div class="bmi-score-num" id="res-bmi-num" style="color:#4caf50">—</div>
+            <div class="bmi-cat-label" id="res-bmi-cat" style="color:#4caf50">—</div>
+          </div>
+          <div class="bmi-bar-wrap">
+            <div class="bmi-needle" id="bmi-needle" style="left:40%"></div>
+          </div>
+          <div class="bmi-bar-labels">
+            <span>কম ওজন</span><span>স্বাভাবিক</span><span>বেশি</span><span>স্থূল</span>
+          </div>
+          <div class="ideal-range" id="res-ideal"></div>
+          <div class="calorie-pill" id="res-cal">🔥 — kcal</div>
+          <div class="age-note" id="res-note"></div>
+          <div class="advice-cards" id="res-advice"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card">
+      <div class="card-head"><span style="font-size:20px">📊</span><h3>আজকের সারসংক্ষেপ</h3></div>
+      <div class="card-body">
+        <div class="summary-grid">
+          <div class="sum-item"><div class="sum-val" id="sum-water">০</div><div class="sum-lbl">গ্লাস পানি</div></div>
+          <div class="sum-item"><div class="sum-val" id="sum-sleep">০ ঘণ্টা</div><div class="sum-lbl">ঘুম</div></div>
+          <div class="sum-item"><div class="sum-val" id="sum-mood">—</div><div class="sum-lbl">আজকের মুড</div></div>
+          <div class="sum-item"><div class="sum-val" id="sum-streak">🔥 ০</div><div class="sum-lbl">দিনের স্ট্রিক</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /dashboard -->
+
+  <!-- ══════════ PAGE: TRACKER ══════════ -->
+  <div class="page" id="page-tracker">
+
+    <!-- Water -->
+    <div class="card">
+      <div class="card-head"><span style="font-size:20px">💧</span><h3 style="color:#1565c0;">পানি ট্র্যাকার</h3></div>
+      <div class="card-body">
+        <div class="glasses-grid" id="glasses-grid"></div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="water-progress" style="width:0%"></div></div>
+        <div class="counter-row">
+          <button class="cnt-btn cnt-minus" onclick="changeWater(-1)">−</button>
+          <div class="cnt-val" id="wc">০</div>
+          <button class="cnt-btn cnt-plus" onclick="changeWater(1)">+</button>
+        </div>
+        <div style="text-align:center;color:var(--sub);font-size:12px;margin-bottom:10px;">
+          লক্ষ্য: <span id="w-goal-lbl">৮</span> গ্লাস
+        </div>
+        <div style="text-align:center;">
+          <span class="streak-badge" id="streak-badge">🔥 ০ দিনের স্ট্রিক</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sleep -->
+    <div class="card">
+      <div class="card-head"><span style="font-size:20px">😴</span><h3 style="color:#6a1b9a;">ঘুমের ট্র্যাকার</h3></div>
+      <div class="card-body">
+        <div class="sleep-display">
+          <div class="sleep-num" id="sleep-display">০</div>
+          <div class="sleep-label">ঘণ্টা ঘুম</div>
+        </div>
+        <input type="range" id="sleep-range" min="0" max="12" step="0.5" value="0" oninput="updateSleep(this.value)">
+        <div class="sleep-marks"><span>০</span><span>৩</span><span>৬</span><span>৯</span><span>১২ ঘণ্টা</span></div>
+        <div id="sleep-tip" style="text-align:center;font-size:12px;color:var(--sub);margin-top:8px;"></div>
+        <button class="btn btn-purple" onclick="saveSleep()">ঘুম সেভ করো</button>
+      </div>
+    </div>
+
+    <!-- Mood -->
+    <div class="card">
+      <div class="card-head"><span style="font-size:20px">😊</span><h3 style="color:#e65100;">মুড ট্র্যাকার</h3></div>
+      <div class="card-body">
+        <div style="font-size:13px;color:var(--sub);margin-bottom:6px;">আজ তুমি কেমন অনুভব করছ?</div>
+        <div class="mood-row">
+          <button class="mood-btn" onclick="setMood('😄','দারুণ!')" id="m-😄">😄</button>
+          <button class="mood-btn" onclick="setMood('😊','ভালো')" id="m-😊">😊</button>
+          <button class="mood-btn" onclick="setMood('😐','মোটামুটি')" id="m-😐">😐</button>
+          <button class="mood-btn" onclick="setMood('😔','মন খারাপ')" id="m-😔">😔</button>
+          <button class="mood-btn" onclick="setMood('😴','ক্লান্ত')" id="m-😴">😴</button>
+        </div>
+        <div class="mood-msg" id="mood-msg"></div>
+      </div>
+    </div>
+
+  </div><!-- /tracker -->
+
+  <!-- ══════════ PAGE: HISTORY ══════════ -->
+  <div class="page" id="page-history">
+
+    <!-- Weight -->
+    <div class="card">
+      <div class="card-head"><span style="font-size:20px">⚖️</span><h3>ওজনের ইতিহাস</h3></div>
+      <div class="card-body">
+        <div class="hist-entry-row">
+          <input type="number" id="new-w" placeholder="আজকের ওজন (কেজি)" style="flex:1;">
+          <button class="btn btn-sm" onclick="addEntry('weight')">যোগ করো</button>
+        </div>
+        <div class="hist-list" id="weight-hist"></div>
+      </div>
+    </div>
+
+    <!-- Height -->
+    <div class="card">
+      <div class="card-head"><span style="font-size:20px">📏</span><h3>উচ্চতার ইতিহাস</h3></div>
+      <div class="card-body">
+        <div class="hist-entry-row">
+          <input type="number" id="new-h" placeholder="আজকের উচ্চতা (সেমি)" style="flex:1;">
+          <button class="btn btn-sm" onclick="addEntry('height')">যোগ করো</button>
+        </div>
+        <div class="hist-list" id="height-hist"></div>
+      </div>
+    </div>
+
+  </div><!-- /history -->
+
+  <!-- ══════════ PAGE: PROFILE ══════════ -->
+  <div class="page" id="page-profile">
+
+    <div class="card">
+      <div class="card-head"><span style="font-size:20px">👤</span><h3>প্রোফাইল</h3></div>
+      <div class="card-body">
+        <div class="avatar-center">
+          <div class="big-avatar" id="big-avatar" onclick="toggleAvatarPicker()">👧</div>
+        </div>
+        <div class="avatar-picker" id="av-picker">
+          <span class="av-opt" onclick="pickAvatar('👧')">👧</span>
+          <span class="av-opt" onclick="pickAvatar('🧕')">🧕</span>
+          <span class="av-opt" onclick="pickAvatar('👩')">👩</span>
+          <span class="av-opt" onclick="pickAvatar('🌸')">🌸</span>
+          <span class="av-opt" onclick="pickAvatar('⭐')">⭐</span>
+          <span class="av-opt" onclick="pickAvatar('🦋')">🦋</span>
+          <span class="av-opt" onclick="pickAvatar('🌺')">🌺</span>
+          <span class="av-opt" onclick="pickAvatar('🌙')">🌙</span>
+        </div>
+        <div class="input-wrap" style="margin-top:10px;">
+          <label>তোমার নাম</label>
+          <input type="text" id="prof-name" placeholder="নাম লেখো">
+        </div>
+        <button class="btn" onclick="saveName()">নাম সেভ করো</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span style="font-size:20px">⚙️</span><h3>সেটিংস</h3></div>
+      <div class="card-body">
+        <div class="setting-row">
+          <span>🌙 ডার্ক মোড</span>
+          <label class="toggle"><input type="checkbox" id="dark-tog" onchange="toggleDark()"><span class="t-slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <span>💧 পানির দৈনিক লক্ষ্য</span>
+          <input type="number" class="goal-input" id="w-goal-inp" value="8" min="1" max="20" onchange="saveWaterGoal()">
+        </div>
+        <div class="setting-row" style="border-bottom:none;">
+          <span style="font-size:13px;color:var(--sub);">BMI পরামর্শ বয়স অনুযায়ী সামঞ্জস্য হয়</span>
+          <span>✅</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-copy">© A.M.MORSHED | সকল স্বত্ব সংরক্ষিত</div>
+    <div style="text-align:center;color:var(--sub);font-size:11px;padding-bottom:10px;">
+      মৌশিকে উপহার দিয়েছেন তার প্রিয় বাবা ❤️
+    </div>
+
+  </div><!-- /profile -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
+      <span class="nav-icon">🏠</span><span>ড্যাশবোর্ড</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" id="nav-tracker" onclick="switchTab('tracker')">
+      <span class="nav-icon">📋</span><span>ট্র্যাকার</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" id="nav-history" onclick="switchTab('history')">
+      <span class="nav-icon">📈</span><span>ইতিহাস</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+      <span class="nav-icon">👤</span><span>প্রোফাইল</span><div class="nav-dot"></div>
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ════════════════════════════════
+//  UTILS
+// ════════════════════════════════
+const bn = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const ls = (k, def) => { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch(e) { return def; } };
+const sl = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} };
+const todayStr = () => new Date().toLocaleDateString('bn-BD');
+
+// ════════════════════════════════
+//  QUOTES
+// ════════════════════════════════
+const QUOTES = [
+  'সুস্বাস্থ্য হলো সবচেয়ে বড় আল্লাহর নেয়ামত।',
+  'প্রতিদিন একটু হাঁটলে, দেহ ও মন দুটোই ভালো থাকে।',
+  'পানি পান করো নিয়মিত, থাকো সতেজ ও প্রাণবন্ত।',
+  'ভালো ঘুম হলো ভালো স্বাস্থ্যের গোপন রহস্য।',
+  'ছোট ছোট ভালো অভ্যাসই বড় পরিবর্তন আনে।',
+  'সুষম খাবার ও ব্যায়াম — সুস্থ জীবনের দুই স্তম্ভ।',
+  'হাসিমুখ থাকো, মন ভালো রাখো!',
+  'আজকের ভালো অভ্যাসই আগামীর সুস্বাস্থ্য।',
+  'শরীরের যত্ন নেওয়া ইবাদতের অংশ।',
+  'নিজেকে ভালোবাসো, নিজের স্বাস্থ্যের খেয়াল রাখো।',
+];
+
+// ════════════════════════════════
+//  INIT
+// ════════════════════════════════
+function initApp() {
+  setTimeout(() => {
+    const sp = document.getElementById('splash');
+    sp.style.opacity = '0';
+    setTimeout(() => { sp.style.display = 'none'; document.getElementById('app').style.display = 'block'; loadAll(); }, 700);
+  }, 2600);
+}
+
+function loadAll() {
+  document.getElementById('daily-quote').innerText = '✨ ' + QUOTES[new Date().getDate() % QUOTES.length];
+  const dark = ls('m_dark', false);
+  if (dark) { document.body.classList.add('dark'); document.getElementById('dark-tog').checked = true; }
+  const avatar = ls('m_avatar', '👧'), name = ls('m_name', 'মৌশি');
+  document.getElementById('big-avatar').innerText = avatar;
+  document.getElementById('hdr-avatar').innerText = avatar;
+  document.getElementById('hdr-name').innerText = name + ' 🌸';
+  if (name !== 'মৌশি') document.getElementById('prof-name').value = name;
+  const goal = ls('m_wgoal', 8);
+  document.getElementById('w-goal-inp').value = goal;
+  document.getElementById('w-goal-lbl').innerText = bn(goal);
+  loadWater(); loadSleep(); loadMood(); loadStreak();
+  renderHist('weight'); renderHist('height'); updateSummary();
+}
+
+// ════════════════════════════════
+//  TABS
+// ════════════════════════════════
+function switchTab(t) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + t).classList.add('active');
+  document.getElementById('nav-' + t).classList.add('active');
+}
+
+// ════════════════════════════════
+//  BMI CALCULATION (AGE-ADJUSTED)
+// ════════════════════════════════
+/*
+  Age groups & thresholds:
+  ─────────────────────────────────────────────────────
+  Under 18 (teens/children):
+    BMI-for-age simplified ranges:
+    < 16.0  → অনেক কম ওজন
+    16–17.9 → কম ওজন
+    18–22.9 → স্বাভাবিক
+    23–26.9 → বেশি ওজন
+    ≥ 27    → স্থূলকায়
+  
+  18–64 (standard adult, WHO):
+    < 18.5  → কম ওজন
+    18.5–24.9 → স্বাভাবিক
+    25–29.9 → বেশি ওজন
+    ≥ 30    → স্থূলকায়
+  
+  65+ (older adult):
+    Research shows BMI 22–27 is optimal; slightly
+    higher BMI is protective against fractures & illness.
+    < 20    → কম ওজন (concerning)
+    20–27   → স্বাভাবিক (বয়স অনুযায়ী)
+    27.1–32 → সামান্য বেশি (সতর্ক থাকুন)
+    > 32    → স্থূলকায়
+  ─────────────────────────────────────────────────────
+*/
+function getBMIData(bmi, age) {
+  const A = {}; // {label, color, noteText, advKey}
+  if (age < 18) {
+    if      (bmi < 16)   A.cat = 'অনেক কম ওজন',  A.col = '#1565c0', A.adv = 'teen_vlow';
+    else if (bmi < 18)   A.cat = 'কম ওজন',        A.col = '#2196f3', A.adv = 'teen_low';
+    else if (bmi < 23)   A.cat = 'স্বাভাবিক',     A.col = '#43a047', A.adv = 'teen_ok';
+    else if (bmi < 27)   A.cat = 'বেশি ওজন',      A.col = '#fb8c00', A.adv = 'teen_over';
+    else                 A.cat = 'স্থূলকায়',      A.col = '#e53935', A.adv = 'teen_obese';
+    A.note = `কিশোর/শিশু বয়সে (১৮ বছরের নিচে) BMI-এর মানদণ্ড বয়স ও বৃদ্ধির উপর নির্ভর করে — প্রাপ্তবয়স্কদের চেয়ে একটু আলাদা।`;
+  } else if (age >= 65) {
+    if      (bmi < 20)   A.cat = 'কম ওজন',        A.col = '#2196f3', A.adv = 'senior_low';
+    else if (bmi <= 27)  A.cat = 'স্বাভাবিক',     A.col = '#43a047', A.adv = 'senior_ok';
+    else if (bmi <= 32)  A.cat = 'সামান্য বেশি',  A.col = '#fb8c00', A.adv = 'senior_over';
+    else                 A.cat = 'স্থূলকায়',      A.col = '#e53935', A.adv = 'senior_obese';
+    A.note = `প্রবীণ বয়সে (৬৫+) বিশেষজ্ঞরা ২২–২৭ BMI কে আদর্শ মনে করেন। সামান্য বেশি ওজন হাড় ও রোগ প্রতিরোধে সহায়ক।`;
+  } else {
+    if      (bmi < 18.5) A.cat = 'কম ওজন',        A.col = '#2196f3', A.adv = 'adult_low';
+    else if (bmi < 25)   A.cat = 'স্বাভাবিক',     A.col = '#43a047', A.adv = 'adult_ok';
+    else if (bmi < 30)   A.cat = 'বেশি ওজন',      A.col = '#fb8c00', A.adv = 'adult_over';
+    else                 A.cat = 'স্থূলকায়',      A.col = '#e53935', A.adv = 'adult_obese';
+    A.note = `প্রাপ্তবয়স্কদের (১৮–৬৪) জন্য WHO-নির্ধারিত আদর্শ BMI হলো ১৮.৫–২৪.৯।`;
+  }
+  return A;
+}
+
+const ADVICE = {
+  teen_vlow: {
+    diet:  'প্রতিদিন তিনবেলা পুষ্টিকর খাবার খাও — ভাত, মাছ, মাংস, ডিম, দুধ, ডাল। বাদাম ও ফলও রাখো।',
+    ex:    'হালকা স্ট্রেচিং ও যোগব্যায়াম করো। শরীর অনেক দুর্বল হলে চিকিৎসকের পরামর্শ নাও।',
+    walk:  'প্রতিদিন ১৫–২০ মিনিট ধীরে হাঁটো। ভারী ব্যায়াম এড়িয়ে চলো।',
+    icon:  '⚠️', bg: '#e3f2fd', bc: '#1565c0',
+    msg:   '⚠️ তোমার ওজন অনেক কম। পরিবারকে জানাও এবং একজন চিকিৎসক দেখাও।'
+  },
+  teen_low: {
+    diet:  'তিনবেলা পুষ্টিকর খাবার খাও। দুধ, ডিম, মাছ, শাকসবজি ও ফল নিয়মিত খাও।',
+    ex:    'হালকা খেলাধুলা করো — স্কিপিং, ব্যাডমিন্টন, সাঁতার।',
+    walk:  'প্রতিদিন ২০–৩০ মিনিট হাঁটো বা হালকা দৌড়াও।',
+    icon:  'ℹ️', bg: '#e8f4fd', bc: '#2196f3',
+    msg:   'তোমার ওজন একটু কম। নিয়মিত পুষ্টিকর খাবার খেলে সহজেই ঠিক হয়ে যাবে।'
+  },
+  teen_ok: {
+    diet:  'সুষম খাবার বজায় রাখো। শাকসবজি, ফলমূল, প্রোটিন প্রতিদিন খাও। জাংক ফুড কমাও।',
+    ex:    'খেলাধুলা, সাইকেল চালানো, সাঁতার — সপ্তাহে ৫ দিন ৩০–৪০ মিনিট।',
+    walk:  'প্রতিদিন ৩০ মিনিট হাঁটলে শরীর ও মন দুটোই ভালো থাকবে।',
+    icon:  '✅', bg: '#e8f5e9', bc: '#43a047',
+    msg:   '✅ বয়স অনুযায়ী তোমার ওজন একদম ঠিক আছে! এই সুন্দর অভ্যাস চালিয়ে যাও।'
+  },
+  teen_over: {
+    diet:  'ভাজাপোড়া, মিষ্টি, কোল্ড ড্রিংকস কমাও। বেশি শাকসবজি, ফল ও ডাল খাও। রাতে হালকা খাও।',
+    ex:    'প্রতিদিন ৩০–৪৫ মিনিট সক্রিয় থাকো — দৌড়, সাঁতার, খেলাধুলা।',
+    walk:  'প্রতিদিন অন্তত ৪০ মিনিট দ্রুত হাঁটো। স্কুলে হেঁটে যেতে পারলে আরও ভালো।',
+    icon:  '⚠️', bg: '#fff8e1', bc: '#fb8c00',
+    msg:   'তোমার ওজন একটু বেশি। চিন্তা নেই — নিয়মিত ব্যায়াম ও সঠিক খাবারে দ্রুত উন্নতি হবে।'
+  },
+  teen_obese: {
+    diet:  'তেল, চিনি ও ফাস্টফুড একদম এড়িয়ে চলো। ছোট প্লেটে ধীরে চিবিয়ে খাও। প্রচুর সবজি খাও।',
+    ex:    'প্রতিদিন ৪৫–৬০ মিনিট সক্রিয় থাকো। সাঁতার বা সাইকেল ভালো।',
+    walk:  'প্রতিদিন ৪৫ মিনিট হাঁটো। ধীরে শুরু করে আস্তে আস্তে গতি বাড়াও।',
+    icon:  '⚠️', bg: '#ffebee', bc: '#e53935',
+    msg:   '⚠️ বয়স অনুযায়ী তোমার ওজন বেশি। পরিবারের সাথে কথা বলে একজন চিকিৎসকের পরামর্শ নাও।'
+  },
+  adult_low: {
+    diet:  'প্রোটিন সমৃদ্ধ খাবার বেশি খান — মাছ, মাংস, ডিম, দুধ, বাদাম। দিনে ৫–৬ বার অল্প অল্প খান।',
+    ex:    'শক্তি বৃদ্ধির ব্যায়াম করুন — হালকা ওজন তোলা, স্ট্রেচিং, যোগব্যায়াম।',
+    walk:  'প্রতিদিন ২০–৩০ মিনিট হালকা হাঁটুন। ক্লান্তিকর ব্যায়াম এড়িয়ে চলুন।',
+    icon:  'ℹ️', bg: '#e8f4fd', bc: '#2196f3',
+    msg:   'আপনার ওজন কম। পুষ্টিকর খাবার, পর্যাপ্ত ঘুম ও হালকা ব্যায়াম নিশ্চিত করুন।'
+  },
+  adult_ok: {
+    diet:  'সুষম খাবার বজায় রাখুন। প্রতিদিন শাকসবজি, ফলমূল, আমিষ ও শর্করার সঠিক অনুপাত মেনে চলুন।',
+    ex:    'সপ্তাহে ৫ দিন ৩০–৪৫ মিনিট মাঝারি ব্যায়াম — জগিং, সাইকেল, সাঁতার।',
+    walk:  'প্রতিদিন ৩০–৪৫ মিনিট হাঁটুন। ১০,০০০ কদমের লক্ষ্য রাখুন।',
+    icon:  '✅', bg: '#e8f5e9', bc: '#43a047',
+    msg:   '✅ আপনার BMI স্বাভাবিক! এই স্বাস্থ্যকর অভ্যাস বজায় রাখুন।'
+  },
+  adult_over: {
+    diet:  'ভাজাপোড়া, অতিরিক্ত তেল ও চিনি কমান। বেশি শাকসবজি, ফল ও আঁশ জাতীয় খাবার খান। রাতে হালকা খান।',
+    ex:    'প্রতিদিন ৪৫–৬০ মিনিট কার্ডিও ব্যায়াম করুন — দৌড়, সাইকেল, সাঁতার।',
+    walk:  'প্রতিদিন ৪৫–৬০ মিনিট দ্রুত হাঁটুন। লিফটের বদলে সিঁড়ি ব্যবহার করুন।',
+    icon:  '⚠️', bg: '#fff8e1', bc: '#fb8c00',
+    msg:   'ওজন একটু বেশি। নিয়মিত ব্যায়াম ও সঠিক খাদ্যাভ্যাসে দ্রুত উন্নতি হবে।'
+  },
+  adult_obese: {
+    diet:  'অতিরিক্ত ক্যালরি, ফাস্টফুড, মিষ্টি ও তেলযুক্ত খাবার এড়িয়ে চলুন। প্রতিদিন ৩–৪ লিটার পানি পান করুন।',
+    ex:    'হালকা ব্যায়াম দিয়ে শুরু করুন — হাঁটা, স্ট্রেচিং। আস্তে আস্তে বাড়ান।',
+    walk:  'প্রতিদিন ৩০ মিনিট হাঁটা দিয়ে শুরু করুন, ধীরে ধীরে ৬০ মিনিটে নিয়ে যান।',
+    icon:  '⚠️', bg: '#ffebee', bc: '#e53935',
+    msg:   '⚠️ আপনার ওজন স্বাস্থ্যকর সীমার বাইরে। একজন চিকিৎসকের পরামর্শ নেওয়া জরুরি।'
+  },
+  senior_low: {
+    diet:  'পুষ্টিকর ও সহজপাচ্য খাবার খান — দুধ, ডিম, নরম মাছ, ডাল। অল্প অল্প করে বারবার খান।',
+    ex:    'হালকা স্ট্রেচিং ও চেয়ার ব্যায়াম করুন। পড়ে যাওয়ার ঝুঁকি এড়াতে সতর্ক থাকুন।',
+    walk:  'প্রতিদিন ১৫–২০ মিনিট ধীরে হাঁটুন। সঙ্গে কাউকে নিন।',
+    icon:  'ℹ️', bg: '#e8f4fd', bc: '#2196f3',
+    msg:   'প্রবীণ বয়সে ২০ এর নিচে BMI ঝুঁকিপূর্ণ। পুষ্টিকর খাবারে বিশেষ মনোযোগ দিন।'
+  },
+  senior_ok: {
+    diet:  'ক্যালসিয়াম ও ভিটামিন ডি সমৃদ্ধ খাবার খান। দুধ, শাকসবজি, ফল নিয়মিত রাখুন। লবণ ও চিনি কমান।',
+    ex:    'যোগব্যায়াম, হালকা স্ট্রেচিং — সপ্তাহে ৩–৪ দিন ২০–৩০ মিনিট।',
+    walk:  'প্রতিদিন সকালে ২০–৩০ মিনিট হাঁটুন। এটি সবচেয়ে উপকারী।',
+    icon:  '✅', bg: '#e8f5e9', bc: '#43a047',
+    msg:   '✅ প্রবীণ বয়সে আপনার BMI (২০–২৭) আদর্শ পরিসরে আছে। চালিয়ে যান!'
+  },
+  senior_over: {
+    diet:  'লবণ, চিনি, তেল কমান। বেশি শাকসবজি, ফল ও আঁশ জাতীয় খাবার খান। রাতে হালকা খান।',
+    ex:    'পানিতে ব্যায়াম বা চেয়ার ব্যায়াম করুন। হাঁটু ব্যথা থাকলে ডাক্তারের পরামর্শ নিন।',
+    walk:  'প্রতিদিন ২০–৩০ মিনিট ধীরে হাঁটুন। নিরাপদ জায়গায় হাঁটুন।',
+    icon:  'ℹ️', bg: '#fff8e1', bc: '#fb8c00',
+    msg:   'প্রবীণ বয়সে ২৭ পর্যন্ত BMI স্বাভাবিক। তবে ৩২ এর বেশি হলে ডাক্তার দেখান।'
+  },
+  senior_obese: {
+    diet:  'অতিরিক্ত ক্যালরি ও তেলযুক্ত খাবার এড়িয়ে চলুন। ডাক্তারের সাথে ডায়েট পরিকল্পনা করুন।',
+    ex:    'ডাক্তারের পরামর্শ অনুযায়ী ব্যায়াম করুন। নিজে থেকে কঠিন ব্যায়াম এড়িয়ে চলুন।',
+    walk:  'প্রতিদিন ১৫–২০ মিনিট আস্তে হাঁটুন। কারো সাহায্য নিন।',
+    icon:  '⚠️', bg: '#ffebee', bc: '#e53935',
+    msg:   '⚠️ আপনার ওজন প্রবীণ বয়সের জন্যও বেশি। দ্রুত চিকিৎসকের পরামর্শ নিন।'
+  }
+};
+
+function calculate() {
+  const w = parseFloat(document.getElementById('inp-w').value);
+  const hInch = parseFloat(document.getElementById('inp-h').value);
+  const age = parseInt(document.getElementById('inp-age').value);
+  const act = parseFloat(document.getElementById('inp-act').value);
+  if (!w || !hInch || !age) { alert('মৌশি, সব তথ্য দাও!'); return; }
+
+  const h = hInch * 2.54; // ইঞ্চি → সেমি (অভ্যন্তরীণ হিসাবের জন্য)
+  const bmi = parseFloat((w / ((h / 100) ** 2)).toFixed(1));
+  // Mifflin-St Jeor (female)
+  const bmr = (10 * w) + (6.25 * h) - (5 * age) - 161;
+  const cal = Math.round(bmr * act);
+
+  // Ideal weight range (using standard 18.5–24.9, applies for adults)
+  const iMin = (18.5 * (h/100)**2).toFixed(1);
+  const iMax = (24.9 * (h/100)**2).toFixed(1);
+
+  const D = getBMIData(bmi, age);
+  const adv = ADVICE[D.adv];
+
+  // Needle position: map bmi 10–40 → 0–100%
+  const pct = Math.min(Math.max(((bmi - 10) / 30) * 100, 2), 98);
+  document.getElementById('bmi-needle').style.left = pct + '%';
+  document.getElementById('res-bmi-num').innerText = bn(bmi);
+  document.getElementById('res-bmi-num').style.color = D.col;
+  document.getElementById('res-bmi-cat').innerText = D.cat;
+  document.getElementById('res-bmi-cat').style.color = D.col;
+  document.getElementById('res-ideal').innerText = `আদর্শ ওজন: ${bn(iMin)}–${bn(iMax)} কেজি  |  বয়স: ${bn(age)} বছর`;
+  document.getElementById('res-cal').innerHTML = `🔥 দৈনিক প্রয়োজন: <b>${bn(cal)} kcal</b>`;
+
+  const noteEl = document.getElementById('res-note');
+  noteEl.style.background = adv.bg;
+  noteEl.style.borderLeftColor = adv.bc;
+  noteEl.innerHTML = `<b>${adv.msg}</b><br><small style="opacity:.75;font-size:11px;">${D.note}</small>`;
+
+  document.getElementById('res-advice').innerHTML = `
+    <div class="adv-card" style="background:${adv.bg};border-left-color:#ff758c;">
+      <div class="adv-title">🍽️ খাদ্যাভ্যাস</div>${adv.diet}
+    </div>
+    <div class="adv-card" style="background:#e8f5e9;border-left-color:#43a047;">
+      <div class="adv-title" style="color:#2e7d32;">🏃 ব্যায়াম</div>${adv.ex}
+    </div>
+    <div class="adv-card" style="background:#e3f2fd;border-left-color:#1976d2;">
+      <div class="adv-title" style="color:#1565c0;">🚶 হাঁটাহাঁটি</div>${adv.walk}
+    </div>
+  `;
+
+  document.getElementById('res-box').style.display = 'block';
+}
+
+// ════════════════════════════════
+//  WATER
+// ════════════════════════════════
+function loadWater() {
+  const c = ls('m_water', 0), g = ls('m_wgoal', 8);
+  document.getElementById('wc').innerText = bn(c);
+  document.getElementById('sum-water').innerText = bn(c);
+  renderGlasses(c, g);
+  const pct = Math.min((c / g) * 100, 100);
+  document.getElementById('water-progress').style.width = pct + '%';
+}
+
+function renderGlasses(c, g) {
+  const grid = document.getElementById('glasses-grid');
+  // Adjust grid columns dynamically
+  const cols = Math.min(g, 8);
+  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  grid.innerHTML = '';
+  for (let i = 0; i < g; i++) {
+    const d = document.createElement('div');
+    d.className = 'glass-icon' + (i < c ? ' full' : '');
+    d.innerText = '💧';
+    grid.appendChild(d);
+  }
+}
+
+function changeWater(d) {
+  const g = ls('m_wgoal', 8);
+  let c = ls('m_water', 0);
+  c = Math.max(0, Math.min(g, c + d));
+  sl('m_water', c);
+  document.getElementById('wc').innerText = bn(c);
+  document.getElementById('sum-water').innerText = bn(c);
+  renderGlasses(c, g);
+  const pct = Math.min((c / g) * 100, 100);
+  document.getElementById('water-progress').style.width = pct + '%';
+  if (c >= g) { checkStreak(); alert('সাবাশ মৌশি! 🎉 আজকের পানির লক্ষ্য পূরণ হয়েছে!'); }
+}
+
+function saveWaterGoal() {
+  const g = parseInt(document.getElementById('w-goal-inp').value) || 8;
+  sl('m_wgoal', g);
+  document.getElementById('w-goal-lbl').innerText = bn(g);
+  const c = ls('m_water', 0);
+  renderGlasses(c, g);
+}
+
+// ════════════════════════════════
+//  STREAK
+// ════════════════════════════════
+function checkStreak() {
+  const last = ls('m_streak_date', '');
+  const t = new Date().toDateString();
+  if (last !== t) {
+    const s = ls('m_streak', 0) + 1;
+    sl('m_streak', s); sl('m_streak_date', t); loadStreak();
+  }
+}
+function loadStreak() {
+  const s = ls('m_streak', 0);
+  document.getElementById('streak-badge').innerText = '🔥 ' + bn(s) + ' দিনের স্ট্রিক';
+  document.getElementById('sum-streak').innerText = '🔥 ' + bn(s);
+}
+
+// ════════════════════════════════
+//  SLEEP
+// ════════════════════════════════
+function loadSleep() {
+  const v = ls('m_sleep', 0);
+  document.getElementById('sleep-range').value = v;
+  updateSleep(v);
+}
+function updateSleep(v) {
+  v = parseFloat(v);
+  const h = Math.floor(v), m = (v % 1 === 0.5) ? '৩০ মি' : '';
+  document.getElementById('sleep-display').innerText = bn(h) + (m ? '.' + '৫' : '');
+  document.getElementById('sum-sleep').innerText = bn(h) + 'ঘণ্টা';
+  let tip = '';
+  if (v < 6) tip = '⚠️ ঘুম কম হচ্ছে। অন্তত ৬–৮ ঘণ্টা ঘুমানো দরকার।';
+  else if (v <= 9) tip = '✅ ঘুমের পরিমাণ ঠিক আছে!';
+  else tip = 'ℹ️ বেশি ঘুমানো হচ্ছে। নিয়মিত সময় মেনে চলার চেষ্টা করো।';
+  document.getElementById('sleep-tip').innerText = tip;
+}
+function saveSleep() {
+  const v = document.getElementById('sleep-range').value;
+  sl('m_sleep', parseFloat(v));
+  alert('ঘুমের তথ্য সেভ হয়েছে!');
+}
+
+// ════════════════════════════════
+//  MOOD
+// ════════════════════════════════
+function loadMood() {
+  const m = ls('m_mood', null);
+  if (m) applyMood(m.e, m.l);
+}
+function setMood(e, l) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('sel'));
+  applyMood(e, l);
+  sl('m_mood', { e, l });
+}
+function applyMood(e, l) {
+  const btn = document.getElementById('m-' + e);
+  if (btn) btn.classList.add('sel');
+  document.getElementById('mood-msg').innerText = 'তুমি আজ ' + l + ' অনুভব করছ ' + e;
+  document.getElementById('sum-mood').innerText = e;
+}
+
+// ════════════════════════════════
+//  HISTORY
+// ════════════════════════════════
+function addEntry(type) {
+  const inp = document.getElementById(type === 'weight' ? 'new-w' : 'new-h');
+  const val = parseFloat(inp.value);
+  if (!val) { alert('মান লেখো!'); return; }
+  const key = 'm_' + type + '_hist';
+  const unit = type === 'weight' ? 'কেজি' : 'সেমি';
+  const list = ls(key, []);
+  list.unshift({ v: val, d: todayStr(), u: unit });
+  if (list.length > 50) list.pop();
+  sl(key, list);
+  inp.value = '';
+  renderHist(type);
+}
+
+function renderHist(type) {
+  const key = 'm_' + type + '_hist';
+  const el = document.getElementById(type + '-hist');
+  const list = ls(key, []);
+  if (!list.length) { el.innerHTML = '<div class="empty-msg">এখনো কোনো রেকর্ড নেই</div>'; return; }
+  el.innerHTML = list.map((item, i) => {
+    const prev = list[i + 1];
+    let trend = '';
+    if (prev) {
+      if (item.v > prev.v) trend = `<span class="trend-up">↑</span>`;
+      else if (item.v < prev.v) trend = `<span class="trend-down">↓</span>`;
+      else trend = `<span style="color:var(--sub)">→</span>`;
+    }
+    return `<div class="hist-row"><span style="color:var(--sub)">${item.d}</span><span>${bn(item.v)} ${item.u} ${trend}</span></div>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+//  PROFILE
+// ════════════════════════════════
+function saveName() {
+  const n = document.getElementById('prof-name').value.trim() || 'মৌশি';
+  sl('m_name', n);
+  document.getElementById('hdr-name').innerText = n + ' 🌸';
+  alert('নাম সেভ হয়েছে!');
+}
+function toggleAvatarPicker() {
+  const p = document.getElementById('av-picker');
+  p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+}
+function pickAvatar(e) {
+  sl('m_avatar', e);
+  document.getElementById('big-avatar').innerText = e;
+  document.getElementById('hdr-avatar').innerText = e;
+  document.getElementById('av-picker').style.display = 'none';
+}
+function toggleDark() {
+  const d = document.getElementById('dark-tog').checked;
+  document.body.classList.toggle('dark', d);
+  sl('m_dark', d);
+}
+
+// ════════════════════════════════
+//  SUMMARY UPDATE
+// ════════════════════════════════
+function updateSummary() {
+  const mood = ls('m_mood', null);
+  if (mood) document.getElementById('sum-mood').innerText = mood.e;
+  const sleep = ls('m_sleep', 0);
+  document.getElementById('sum-sleep').innerText = bn(Math.floor(sleep)) + 'ঘণ্টা';
+  loadStreak();
+}
+</script>
+</body>
+</html>
